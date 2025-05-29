@@ -1,18 +1,14 @@
 mod components;
 mod colors;
 mod signals;
+mod styles;
 
 use freya::prelude::*;
 use colors::COLOR_DARK_0;
 use components::first_start::FirstStart;
+use signals::FIRST_START;
 
 static INTER: &[u8] = include_bytes!("../../assets/fonts/inter/Inter-VariableFont_opsz,wght.ttf");
-
-fn is_first_start() -> bool {
-    println!("is_first_start() called");
-
-    true
-}
 
 fn main() {
     launch_cfg(
@@ -29,11 +25,11 @@ fn app() -> Element {
         rect {
             width: "100%",
             height: "100%",
-            background: "{ COLOR_DARK_0 }",
+            background: COLOR_DARK_0,
             color: "#ffffff",
             font_family: "Inter",
 
-            if is_first_start() {
+            if *FIRST_START.read() {
                 FirstStart {}
             } else {
                 label { "Just Note" }

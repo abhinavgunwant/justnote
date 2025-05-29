@@ -1,6 +1,10 @@
 use freya::prelude::*;
 
-use crate::styles::{ PRIMARY_BUTTON, SECONDARY_BUTTON };
+use vault::files::vault::create_vault;
+use crate::{
+    signals::FIRST_START,
+    styles::{ PRIMARY_BUTTON, SECONDARY_BUTTON }
+};
 
 #[derive(Debug, Default, PartialEq)]
 enum View {
@@ -15,6 +19,7 @@ pub fn FirstStart() -> Element {
     let mut view = use_signal(|| View::default());
     let mut vault_name = use_signal(String::default);
     let mut vault_pass = use_signal(String::default);
+    let mut error = use_signal(String::default);
 
     rsx! {
         rect {
@@ -89,6 +94,17 @@ pub fn FirstStart() -> Element {
                     "Create a Vault"
                 }
 
+                if !error.read().is_empty() {
+                    label {
+                        width: "100%",
+                        text_align: "center",
+                        font_size: "20",
+                        color: "#ff0000",
+
+                        "Error: { error }"
+                    }
+                }
+
                 rect {
                     width: "100%",
                     main_align: "center",
@@ -123,7 +139,19 @@ pub fn FirstStart() -> Element {
                             cross_align: "center",
 
                             Button {
-                                onclick: move |_| *view.write() = View::CreateVault,
+                                theme: PRIMARY_BUTTON,
+
+                                onclick: move |_| {
+                                    if let Err(msg) = create_vault(
+                                        vault_name.cloned(),
+                                        vault_pass.cloned(),
+                                        true
+                                    ) {
+                                        *error.write() = msg;
+                                    };
+
+                                    *FIRST_START.write() = false;
+                                },
 
                                 label { "Create Vault" }
                             }
