@@ -1,5 +1,7 @@
 use freya::prelude::*;
 
+use crate::styles::{ PRIMARY_BUTTON, SECONDARY_BUTTON };
+
 #[derive(Debug, Default, PartialEq)]
 enum View {
     #[default]
@@ -16,7 +18,11 @@ pub fn FirstStart() -> Element {
 
     rsx! {
         rect {
+            width: "100%",
+            height: "100%",
             padding: "50",
+            main_align: "center",
+            cross_align: "center",
 
             if *view.read() == View::Start {
                 label {
@@ -68,6 +74,7 @@ pub fn FirstStart() -> Element {
                     margin: "20 0 0 0",
 
                     Button {
+                        theme: PRIMARY_BUTTON,
                         onclick: move |_| *view.write() = View::CreateVault,
 
                         label { "Get Started" }
@@ -118,7 +125,7 @@ pub fn FirstStart() -> Element {
                             Button {
                                 onclick: move |_| *view.write() = View::CreateVault,
 
-                                label { "CreateVault" }
+                                label { "Create Vault" }
                             }
                         }
 
@@ -129,6 +136,7 @@ pub fn FirstStart() -> Element {
                             cross_align: "center",
 
                             Button {
+                                theme: SECONDARY_BUTTON,
                                 onclick: move |_| *view.write() = View::Start,
 
                                 label { "Back" }
