@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 freya = "0.3.3"
+vault = { path = "../vault" }
