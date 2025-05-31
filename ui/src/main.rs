@@ -2,11 +2,13 @@ mod components;
 mod colors;
 mod signals;
 mod styles;
+mod startup;
 
 use freya::prelude::*;
 use colors::COLOR_DARK_0;
-use components::first_start::FirstStart;
+use components::{ first_start::FirstStart, vault_session::VaultSession };
 use signals::FIRST_START;
+use startup::startup;
 
 static INTER: &[u8] = include_bytes!("../../assets/fonts/inter/Inter-VariableFont_opsz,wght.ttf");
 
@@ -21,6 +23,8 @@ fn main() {
 }
 
 fn app() -> Element {
+    startup();
+
     rsx! {
         rect {
             width: "100%",
@@ -32,7 +36,7 @@ fn app() -> Element {
             if *FIRST_START.read() {
                 FirstStart {}
             } else {
-                label { "Just Note" }
+                VaultSession {}
             }
         }
     }

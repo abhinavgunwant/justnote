@@ -1,6 +1,6 @@
 use serde::{ Deserialize, Serialize };
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Note {
     /// The id of the note
     pub id: u32,

@@ -22,39 +22,30 @@ pub fn create_default_vault_file(name: &str) -> Result<(), String> {
         ));
     };
 
-    let mut file_path = PathBuf::from(default_vault_file_path.as_str());
-    file_path.push("default-vault");
-
-    match file_path.to_str() {
-        Some(f_path) => {
-            match File::open(f_path) {
-                Ok(mut file) => {
-                    match file.write(name.as_bytes()) {
-                        Ok(b) => {
-                            if b > 0 {
-                                return Ok(());
-                            }
-
-                            Err(String::from("No bytes written"))
-                        }
-
-                        Err(e) => {
-                            eprintln!("{}", e);
-
-                            Err(String::from("Error while writing file"))
-                        }
+    match File::create(default_vault_file_path) {
+        Ok(mut file) => {
+            match file.write(name.as_bytes()) {
+                Ok(b) => {
+                    if b > 0 {
+                        return Ok(());
                     }
+
+                    Err(String::from("No bytes written"))
                 }
 
                 Err(e) => {
                     eprintln!("{}", e);
 
-                    Err(String::from("Couldn't open file"))
+                    Err(String::from("Error while writing file"))
                 }
             }
         }
 
-        None => Err(String::from("Issues with file path"))
+        Err(e) => {
+            eprintln!("{}", e);
+
+            Err(String::from("Couldn't open file"))
+        }
     }
 }
 
@@ -135,23 +126,13 @@ pub fn create_vault(
                 return Err(format!("{}", e));
             }
 
-            println!("vault ntoes directory created");
+            println!("vault notes directory created");
 
-            match get_default_vault_file_path() {
-                Some(def_v_fpath) => {
-                    if !def_v_fpath.is_empty() {
-                        println!("info file created");
-                        // TODO: change the default to the current vault
-                        Ok(())
-                    } else {
-                        match create_default_vault_file(&name) {
-                            Ok(()) => Ok(()),
-                            Err(e) => Err(e),
-                        }
-                    }
-                }
+            println!("Creating default vault file");
 
-                None => { Err(String::from("Could not find default path")) }
+            match create_default_vault_file(&name) {
+                Ok(()) => Ok(()),
+                Err(e) => Err(e),
             }
         }
 
