@@ -1,34 +1,31 @@
+use std::borrow::Cow;
+
 use freya::prelude::*;
 
-use crate::signals::{ VAULT_NAME, CURRENT_NOTE };
-
-use vault::{
-    files::{notes::save_note_to_vault, vault_index::get_vault_index},
-    types::{
-        note::Note, vault_index::VaultIndex,
-        vault_index_entry::{ VaultIndexEntry, VaultIndexEntryType },
-    }
-};
+use crate::{colors::{COLOR_DARK_0, COLOR_DARK_1}, signals::{ CURRENT_NOTE, VAULT_INDEX, VAULT_NAME }};
 
 #[component]
 pub fn Explorer() -> Element {
-    let mut vault_index = use_signal(||
-        match VAULT_NAME.cloned() {
-            Some(vault_name) => {
-                match get_vault_index(&vault_name) {
-                    Ok(index) => index,
-                    Err(_e) => VaultIndex::default(),
-                }
-            }
-
-            None => VaultIndex::default(),
-        }
-    );
-
     let vault_name = if let Some(vn) = VAULT_NAME.cloned() {
         vn
     } else {
         String::default()
+    };
+
+    let ExplorerButtonTheme = ButtonThemeWith {
+        font_theme: Some(FontThemeWith {
+            color: Some(Cow::Borrowed("white")),
+        }),
+        background: Some(Cow::Borrowed(COLOR_DARK_0)),
+        hover_background: Some(Cow::Borrowed(COLOR_DARK_1)),
+        border_fill: Some(Cow::Borrowed("none")),
+        focus_border_fill: None,
+        shadow: None,
+        margin: None,
+        corner_radius: None,
+        width: None,
+        height: None,
+        padding: Some(Cow::Borrowed("8 15")),
     };
 
     rsx! {
@@ -36,51 +33,12 @@ pub fn Explorer() -> Element {
             label { "Vault: { vault_name }" }
 
             rect {
-                Button {
-                    onclick: move |_e| {
-                        let Some(vault_name) = VAULT_NAME.cloned() else {
-                            return;
-                        };
+                for item in VAULT_INDEX.read().entries.iter() {
+                    Button {
+                        theme: ExplorerButtonTheme.clone(),
 
-                        let id = vault_index.read().last_id + 1;
-
-                        let name = String::from("Untitled Note");
-
-                        vault_index.write().entries.push(VaultIndexEntry {
-                            id,
-                            name: name.clone(),
-                            entry_type: VaultIndexEntryType::Note,
-                            parent_folder: None,
-                        });
-
-                        let note = Note::new(id, name, String::default());
-
-                        let _ = save_note_to_vault(&vault_name, &note);
-
-                        *CURRENT_NOTE.write() = Some(note);
-                    },
-
-                    label { "New Note" }
-                }
-
-                Button {
-                    onclick: move |_e| {
-                        let Some(vault_name) = VAULT_NAME.cloned() else {
-                            return;
-                        };
-
-                        if let Some(note) = CURRENT_NOTE.cloned() {
-                            let _ = save_note_to_vault(&vault_name, &note);
-                        }
-                    },
-
-                    label { "Save Note" }
-                }
-            }
-
-            rect {
-                for item in vault_index.read().entries.iter() {
-                    label { "{ item.name }" }
+                        label { "{ item.name }" }
+                    }
                 }
             }
         }
