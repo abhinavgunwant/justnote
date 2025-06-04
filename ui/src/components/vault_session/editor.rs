@@ -7,7 +7,10 @@ use vault::{
     },
 };
 
-use crate::signals::{ VAULT_NAME, CURRENT_NOTE, VAULT_INDEX };
+use crate::{
+    signals::{ VAULT_NAME, CURRENT_NOTE, VAULT_INDEX },
+    colors::COLOR_DARK_4,
+};
 
 #[component]
 pub fn Editor() -> Element {
@@ -99,11 +102,10 @@ pub fn Editor() -> Element {
                 onclick,
                 width: "fill",
                 cursor_mode: "editable",
-                cursor_index: 0,
+                cursor_index: editor.editor().read().cursor_pos().to_string(),
                 cursor_id: "0",
                 cursor_reference: editor.cursor_attr(),
-                cursor_color: "red",
-                // max_lines: "1",
+                cursor_color: "{ COLOR_DARK_4 }",
                 highlights: editor.highlights_attr(0),
                 line_height: "1",
 
