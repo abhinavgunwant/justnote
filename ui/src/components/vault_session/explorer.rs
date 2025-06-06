@@ -4,7 +4,7 @@ use freya::prelude::*;
 
 use crate::{
     colors::{ COLOR_DARK_0, COLOR_DARK_1, COLOR_DARK_2 },
-    signals::{ CURRENT_NOTE, VAULT_INDEX, VAULT_NAME }
+    signals::{ VAULT_INDEX, VAULT_NAME }
 };
 
 #[component]
