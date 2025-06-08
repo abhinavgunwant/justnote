@@ -1,3 +1,17 @@
+//! Everything related to the notes files.
+//!
+//! # How are the note files stored?
+//!
+//! The note id is of type u32(4 bytes). The note is stored in a path (relative
+//! to the "notes" directory) containing the hex-encoded bytes separated by the
+//! path separator.
+//!
+//! Examples:
+//! | Note ID    | path (relative to the "notes" directory) |
+//! |------------|------------------------------------------|
+//! |         1  | 00/00/00/01                              |
+//! | 2904774276 | ad/23/56/84                              |
+//!
 use std::{
     path::PathBuf, fs::{ create_dir_all, write, read },
     io::{ Error as IOError, ErrorKind as IOErrorKind },
@@ -27,6 +41,7 @@ pub fn create_vault_notes_directory(path: &PathBuf) -> Result<(), String> {
     }
 }
 
+/// Gets the path of the note file relative to the vault directory.
 fn get_relative_note_path(note_id: u32) -> Vec<String> {
     let mut path_str_vec: Vec<String> = Vec::with_capacity(4);
 

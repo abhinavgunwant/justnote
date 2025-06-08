@@ -1,3 +1,5 @@
+//! Contains common styles
+
 use freya::prelude::*;
 
 use std::borrow::Cow;
