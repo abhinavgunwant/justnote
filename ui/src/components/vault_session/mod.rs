@@ -1,6 +1,7 @@
 pub mod explorer;
 pub mod editor;
 pub mod note_name;
+pub mod explorer_note_entry;
 
 use freya::prelude::*;
 

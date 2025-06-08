@@ -143,7 +143,7 @@ pub fn Editor() -> Element {
 
     rsx! {
         rect {
-            width: "100%",
+            width: "calc(100% - 203)",
             padding: "24",
 
             NoteName {
