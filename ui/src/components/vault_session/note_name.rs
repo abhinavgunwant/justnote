@@ -7,7 +7,7 @@ use crate::{
 };
 
 #[component]
-pub fn NoteName() -> Element {
+pub fn NoteName(onchange: EventHandler<String>) -> Element {
     let mut editable = use_editable(|| {
             EditableConfig::new(if let Some(note) = CURRENT_NOTE.cloned() {
                 note.title
@@ -45,6 +45,8 @@ pub fn NoteName() -> Element {
         if is_active {
             if let Some(_) = *CURRENT_NOTE.read() {
                 editable.process_event(&EditableEvent::KeyDown(e.data));
+
+                onchange.call(editable.editor().peek().to_string());
             }
         }
     };

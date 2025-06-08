@@ -21,6 +21,17 @@ pub fn Editor() -> Element {
         EditableMode::MultipleLinesSingleEditor
     );
 
+    let mut note_id = use_signal(|| 0);
+    let mut note_name = use_signal(|| String::default());
+
+    if let Some(note) = CURRENT_NOTE.cloned() {
+        if note.id != *note_id.read() as u32 {
+            editor.editor_mut().write().set(note.text.as_str());
+            *note_id.write() = note.id;
+            *note_name.write() = note.title;
+        }
+    }
+
     let is_active: bool = *ACTIVE_AREA.read() == ActiveArea::Editor;
 
     let onmousedown = move |e: MouseEvent| {
@@ -48,9 +59,24 @@ pub fn Editor() -> Element {
                     };
 
                     if let Some(note) = CURRENT_NOTE.cloned() {
-                        match save_note_to_vault(&vault_name, &note) {
+                        let mut new_note = note.clone();
+                        new_note.title = note_name.cloned();
+                        new_note.text = editor.editor().peek().to_string();
+
+                        let mut current_index = VAULT_INDEX.cloned();
+
+                        for index_entry in current_index.entries.iter_mut() {
+                            if index_entry.id == new_note.id {
+                                index_entry.name = new_note.title.clone();
+                                break;
+                            }
+                        }
+
+                        match save_note_to_vault(&vault_name, &new_note) {
                             Ok(()) => {
-                                let _ = set_vault_index(&vault_name, &VAULT_INDEX.read());
+                                let _ = set_vault_index(&vault_name, &current_index);
+
+                                *VAULT_INDEX.write() = current_index;
                             }
 
                             Err(_) => {}
@@ -120,7 +146,9 @@ pub fn Editor() -> Element {
             width: "100%",
             padding: "24",
 
-            NoteName {}
+            NoteName {
+                onchange: move |text| { *note_name.write() = text; }
+            }
 
             paragraph {
                 onglobalkeydown,
