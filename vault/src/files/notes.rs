@@ -1,7 +1,10 @@
-use std::{ path::PathBuf, fs::{ create_dir_all, write }};
+use std::{
+    path::PathBuf, fs::{ create_dir_all, write, read },
+    io::{ Error as IOError, ErrorKind as IOErrorKind },
+};
 
-use flexbuffers::FlexbufferSerializer;
-use serde::Serialize;
+use flexbuffers::{ FlexbufferSerializer, Reader };
+use serde::{ Serialize, Deserialize };
 
 use crate::{ paths::get_vault_dir, types::note::Note };
 
@@ -42,7 +45,7 @@ fn get_relative_note_path(note_id: u32) -> Vec<String> {
     path_str_vec
 }
 
-fn get_note_path(vault_name: &String, note_id: u32) -> Result<String, std::io::Error>{
+fn get_note_path(vault_name: &String, note_id: u32) -> Result<String, IOError>{
     match get_vault_dir(vault_name.clone()) {
         Some(mut path) => {
             path.push("notes");
@@ -59,17 +62,44 @@ fn get_note_path(vault_name: &String, note_id: u32) -> Result<String, std::io::E
                 return Ok(file_path.to_owned());
             }
 
-            Err(std::io::Error::from(std::io::ErrorKind::InvalidData))
+            Err(IOError::from(IOErrorKind::InvalidData))
         }
 
-        None => Err(std::io::Error::from(std::io::ErrorKind::NotFound))
+        None => Err(IOError::from(IOErrorKind::NotFound))
+    }
+}
+
+/// Gets the note from the vault.
+pub fn get_note(vault_name: &String, note_id: u32) -> Result<Note, IOError> {
+    match get_note_path(vault_name, note_id) {
+        Ok(path) => {
+            match read(path) {
+                Ok(bytes) => {
+                    if bytes.is_empty() {
+                        return Err(IOError::from(IOErrorKind::UnexpectedEof));
+                    }
+
+                    if let Ok(reader) = Reader::get_root(bytes.as_slice()) {
+                        if let Ok(note) = Note::deserialize(reader) {
+                            return Ok(note);
+                        }
+                    }
+
+                    Err(IOError::from(IOErrorKind::Other))
+                }
+
+                Err(e) => Err(e),
+            }
+        }
+
+        Err(e) => Err(e),
     }
 }
 
 pub fn save_note_to_vault(
     vault_name: &String,
     note: &Note,
-) -> Result<(), std::io::Error> {
+) -> Result<(), IOError> {
     match get_note_path(vault_name, note.id) {
         Ok(path) => {
             let mut p = PathBuf::from(&path);
@@ -89,7 +119,7 @@ pub fn save_note_to_vault(
 
             if let Err(e) = note.serialize(&mut serializer) {
                 eprintln!("{}", e);
-                return Err(std::io::Error::from(std::io::ErrorKind::Other));
+                return Err(IOError::from(IOErrorKind::Other));
             }
 
             match write(path.as_str(), serializer.view()) {
