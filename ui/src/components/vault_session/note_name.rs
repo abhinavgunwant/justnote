@@ -8,6 +8,8 @@ use crate::{
 
 #[component]
 pub fn NoteName(onchange: EventHandler<String>) -> Element {
+    let platform = use_platform();
+
     let mut editable = use_editable(|| {
             EditableConfig::new(if let Some(note) = CURRENT_NOTE.cloned() {
                 note.title
@@ -28,6 +30,14 @@ pub fn NoteName(onchange: EventHandler<String>) -> Element {
             *note_id.write() = note.id;
         }
     }
+
+    let onmouseenter = move |_| {
+        platform.set_cursor(CursorIcon::Text);
+    };
+
+    let onmouseleave = move |_| {
+        platform.set_cursor(CursorIcon::Default);
+    };
 
     let onmousedown = move |e: MouseEvent| {
         editable.process_event(&EditableEvent::MouseDown(e.data, 0));
@@ -70,6 +80,8 @@ pub fn NoteName(onchange: EventHandler<String>) -> Element {
             },
 
             paragraph {
+                onmouseenter,
+                onmouseleave,
                 onmousedown,
                 onmousemove,
                 onclick,

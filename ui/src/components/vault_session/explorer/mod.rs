@@ -14,6 +14,8 @@ use crate::{
 /// Displays notes and folders on the left.
 #[component]
 pub fn Explorer() -> Element {
+    let platform = use_platform();
+
     let vault_name = if let Some(vn) = VAULT_NAME.cloned() {
         vn
     } else {
@@ -27,6 +29,9 @@ pub fn Explorer() -> Element {
 
             rect {
                 width: "{ EXPLORER_WIDTH }",
+                onmouseenter: move |_| {
+                    platform.set_cursor(CursorIcon::Default);
+                },
 
                 label { "Vault: { vault_name }" }
 

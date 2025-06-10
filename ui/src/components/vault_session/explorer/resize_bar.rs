@@ -10,6 +10,7 @@ use crate::{
 pub fn ExplorerResizeBar() -> Element {
     let mut hovered = use_signal::<bool>(|| false);
     let mut dragging = use_signal::<bool>(|| false);
+    let platform = use_platform();
 
     let background = if *hovered.read() || *dragging.read() {
        COLOR_DARK_2
@@ -24,15 +25,18 @@ pub fn ExplorerResizeBar() -> Element {
             background: "{ background }",
             onmouseenter: move |_| {
                 *hovered.write() = true;
+                platform.set_cursor(CursorIcon::EwResize);
             },
             onmouseleave: move |_| {
                 *hovered.write() = false;
+                platform.set_cursor(CursorIcon::Default);
             },
             onglobalmousemove: move |e| {
                 if *dragging.read() {
                     let pos = e.get_screen_coordinates();
 
                     *EXPLORER_WIDTH.write() = pos.x as u16;
+                    platform.set_cursor(CursorIcon::EwResize);
                 }
             },
             onmousedown: move |_| {

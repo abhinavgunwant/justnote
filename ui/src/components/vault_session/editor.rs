@@ -18,6 +18,8 @@ use crate::{
 
 #[component]
 pub fn Editor() -> Element {
+    let platform = use_platform();
+
     let mut editor = use_editable(
         || EditableConfig::new(String::default()),
         EditableMode::MultipleLinesSingleEditor
@@ -35,6 +37,14 @@ pub fn Editor() -> Element {
     }
 
     let is_active: bool = *ACTIVE_AREA.read() == ActiveArea::Editor;
+
+    let onmouseenter = move |_| {
+        platform.set_cursor(CursorIcon::Text);
+    };
+
+    let onmouseleave = move |_| {
+        platform.set_cursor(CursorIcon::Default);
+    };
 
     let onmousedown = move |e: MouseEvent| {
         editor.process_event(&EditableEvent::MouseDown(e.data, 0));
@@ -153,6 +163,8 @@ pub fn Editor() -> Element {
             }
 
             paragraph {
+                onmouseenter,
+                onmouseleave,
                 onglobalkeydown,
                 onglobalkeyup,
                 onmousedown,
