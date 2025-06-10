@@ -144,7 +144,7 @@ pub fn Editor() -> Element {
     }
 
     rsx! {
-        rect {
+        ScrollView {
             width: "calc(100% - { EXPLORER_WIDTH })",
             padding: "24",
 

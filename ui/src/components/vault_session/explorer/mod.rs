@@ -30,7 +30,7 @@ pub fn Explorer() -> Element {
 
                 label { "Vault: { vault_name }" }
 
-                rect {
+                ScrollView {
                     for item in VAULT_INDEX.read().entries.iter() {
                         ExplorerNoteEntry {
                             vault_name: "{vault_name}",
