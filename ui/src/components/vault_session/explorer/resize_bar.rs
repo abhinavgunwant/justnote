@@ -2,10 +2,10 @@ use freya::prelude::*;
 
 use crate::{
     colors::COLOR_DARK_2,
-    signals::{ VAULT_INDEX, VAULT_NAME, EXPLORER_WIDTH },
-    components::vault_session::explorer_note_entry::ExplorerNoteEntry,
+    signals::EXPLORER_WIDTH,
 };
 
+/// The vertical bar that is used to resize the explorer.
 #[component]
 pub fn ExplorerResizeBar() -> Element {
     let mut hovered = use_signal::<bool>(|| false);
@@ -43,40 +43,6 @@ pub fn ExplorerResizeBar() -> Element {
             },
 
             label { "" }
-        }
-    }
-}
-
-#[component]
-pub fn Explorer() -> Element {
-    let vault_name = if let Some(vn) = VAULT_NAME.cloned() {
-        vn
-    } else {
-        String::default()
-    };
-
-    rsx! {
-        rect {
-            direction: "horizontal",
-            height: "fill",
-
-            rect {
-                width: "{ EXPLORER_WIDTH }",
-
-                label { "Vault: { vault_name }" }
-
-                rect {
-                    for item in VAULT_INDEX.read().entries.iter() {
-                        ExplorerNoteEntry {
-                            vault_name: "{vault_name}",
-                            note_id: item.id,
-                            note_name: item.name.clone(),
-                        }
-                    }
-                }
-            }
-
-            ExplorerResizeBar {}
         }
     }
 }
