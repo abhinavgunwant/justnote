@@ -1,12 +1,51 @@
-use std::borrow::Cow;
-
 use freya::prelude::*;
 
 use crate::{
-    colors::{ COLOR_DARK_1, COLOR_DARK_2 },
-    signals::{ VAULT_INDEX, VAULT_NAME },
+    colors::COLOR_DARK_2,
+    signals::{ VAULT_INDEX, VAULT_NAME, EXPLORER_WIDTH },
     components::vault_session::explorer_note_entry::ExplorerNoteEntry,
 };
+
+#[component]
+pub fn ExplorerResizeBar() -> Element {
+    let mut hovered = use_signal::<bool>(|| false);
+    let mut dragging = use_signal::<bool>(|| false);
+
+    let background = if *hovered.read() || *dragging.read() {
+       COLOR_DARK_2
+    } else {
+       "#444444"
+    };
+
+    rsx! {
+        rect {
+            height: "fill",
+            width: "3",
+            background: "{ background }",
+            onmouseenter: move |_| {
+                *hovered.write() = true;
+            },
+            onmouseleave: move |_| {
+                *hovered.write() = false;
+            },
+            onglobalmousemove: move |e| {
+                if *dragging.read() {
+                    let pos = e.get_screen_coordinates();
+
+                    *EXPLORER_WIDTH.write() = pos.x as u16;
+                }
+            },
+            onmousedown: move |_| {
+                *dragging.write() = true;
+            },
+            onmouseup: move |_| {
+                *dragging.write() = false;
+            },
+
+            label { "" }
+        }
+    }
+}
 
 #[component]
 pub fn Explorer() -> Element {
@@ -16,26 +55,14 @@ pub fn Explorer() -> Element {
         String::default()
     };
 
-    let ResizeButtonTheme = ButtonThemeWith {
-        font_theme: None,
-        background: Some(Cow::Borrowed(COLOR_DARK_2)),
-        hover_background: Some(Cow::Borrowed(COLOR_DARK_1)),
-        border_fill: Some(Cow::Borrowed("none")),
-        focus_border_fill: None,
-        shadow: None,
-        margin: None,
-        corner_radius: None,
-        width: Some(Cow::Borrowed("3")),
-        height: Some(Cow::Borrowed("fill")),
-        padding: Some(Cow::Borrowed("8 15")),
-    };
-
     rsx! {
         rect {
             direction: "horizontal",
             height: "fill",
 
             rect {
+                width: "{ EXPLORER_WIDTH }",
+
                 label { "Vault: { vault_name }" }
 
                 rect {
@@ -49,11 +76,7 @@ pub fn Explorer() -> Element {
                 }
             }
 
-            Button {
-                theme: ResizeButtonTheme.clone(),
-
-                label { "" }
-            }
+            ExplorerResizeBar {}
         }
     }
 }

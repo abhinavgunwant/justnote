@@ -11,7 +11,9 @@ use vault::{
 use crate::{
     colors::COLOR_DARK_4,
     components::vault_session::{ note_name::NoteName, ActiveArea },
-    signals::{ ACTIVE_AREA, CURRENT_NOTE, VAULT_INDEX, VAULT_NAME },
+    signals::{
+        ACTIVE_AREA, CURRENT_NOTE, VAULT_INDEX, VAULT_NAME, EXPLORER_WIDTH,
+    },
 };
 
 #[component]
@@ -143,7 +145,7 @@ pub fn Editor() -> Element {
 
     rsx! {
         rect {
-            width: "calc(100% - 203)",
+            width: "calc(100% - { EXPLORER_WIDTH })",
             padding: "24",
 
             NoteName {

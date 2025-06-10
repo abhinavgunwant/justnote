@@ -18,3 +18,5 @@ pub static VAULT_INDEX: GlobalSignal<VaultIndex> = Signal::global(||VaultIndex::
 
 pub static ACTIVE_AREA: GlobalSignal<ActiveArea> = Signal::global(|| ActiveArea::Editor);
 
+pub static EXPLORER_WIDTH: GlobalSignal<u16> = Signal::global(|| 200);
+

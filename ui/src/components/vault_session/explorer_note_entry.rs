@@ -2,7 +2,10 @@ use freya::prelude::*;
 
 use vault::files::notes::get_note;
 
-use crate::{ colors::{ COLOR_DARK_0, COLOR_DARK_1 }, signals::CURRENT_NOTE };
+use crate::{
+    colors::{ COLOR_DARK_0, COLOR_DARK_1 },
+    signals::{ CURRENT_NOTE, EXPLORER_WIDTH },
+};
 
 /// The explorer note entry.
 ///
@@ -43,7 +46,7 @@ pub fn ExplorerNoteEntry(
             onpointerup,
             background: "{ background }",
             color: "#ffffff",
-            width: "200",
+            width: "{ EXPLORER_WIDTH }",
             padding: "8",
 
             label {
