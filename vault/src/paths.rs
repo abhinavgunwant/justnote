@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use dirs_next::data_local_dir;
 
-use crate::types::VaultError;
+use types::VaultError;
 
 pub fn get_local_dir() -> Option<PathBuf> {
     if let Some(mut path) = data_local_dir() {

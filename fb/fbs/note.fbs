@@ -1,0 +1,18 @@
+namespace Note;
+
+table SpecVersion {
+    major: uint16 = 0;
+    minor: uint16 = 1;
+    patch: uint16 = 0;
+}
+
+table Note {
+    id: uint32;
+    spec_version: SpecVersion;
+    enc: bool;
+    title: [ubyte];
+    text: [ubyte];
+}
+
+root_type Note;
+

@@ -2,11 +2,9 @@ use freya::prelude::*;
 
 use vault::{
     files::{ notes::save_note_to_vault, vault_index::set_vault_index },
-    types::{
-        vault_index_entry::{ VaultIndexEntry, VaultIndexEntryType },
-        note::Note,
-    },
+    types::vault_index_entry::{ VaultIndexEntry, VaultIndexEntryType },
 };
+use types::Note;
 
 use crate::{
     colors::COLOR_DARK_4,
@@ -30,9 +28,15 @@ pub fn Editor() -> Element {
 
     if let Some(note) = CURRENT_NOTE.cloned() {
         if note.id != *note_id.read() as u32 {
-            editor.editor_mut().write().set(note.text.as_str());
             *note_id.write() = note.id;
-            *note_name.write() = note.title;
+
+            if let Ok(title) = note.title() {
+                *note_name.write() = title;
+            }
+
+            if let Ok(text) = note.text() {
+                editor.editor_mut().write().set(&text);
+            }
         }
     }
 
@@ -72,15 +76,17 @@ pub fn Editor() -> Element {
 
                     if let Some(note) = CURRENT_NOTE.cloned() {
                         let mut new_note = note.clone();
-                        new_note.title = note_name.cloned();
-                        new_note.text = editor.editor().peek().to_string();
+                        new_note.set_title(note_name.cloned());
+                        new_note.set_text(editor.editor().peek().to_string());
 
                         let mut current_index = VAULT_INDEX.cloned();
 
                         for index_entry in current_index.entries.iter_mut() {
                             if index_entry.id == new_note.id {
-                                index_entry.name = new_note.title.clone();
-                                break;
+                                if let Ok(title) = new_note.title() {
+                                    index_entry.name = title;
+                                    break;
+                                }
                             }
                         }
 
@@ -114,7 +120,7 @@ pub fn Editor() -> Element {
                         parent_folder: None,
                     });
 
-                    let note = Note::new(id, name, String::default());
+                    let note = Note::new(id, name, String::default(), false);
 
                     let _ = save_note_to_vault(&vault_name, &note);
 

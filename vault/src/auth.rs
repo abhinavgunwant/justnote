@@ -9,8 +9,10 @@ use argon2:: {
 use flexbuffers::Reader;
 use serde::Deserialize;
 
+use types::VaultError;
+
 use crate::{
-    types::{ VaultError, vault_info::VaultInfo },
+    types::vault_info::VaultInfo,
     paths::{ vault_exists, get_local_dir },
 };
 

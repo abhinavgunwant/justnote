@@ -1,5 +1,7 @@
 use std::{ fs::{ File, read_to_string }, io::Write };
 
+use types::VaultError;
+
 use crate::{
     files::{
         create_directories, notes::create_vault_notes_directory,
@@ -7,7 +9,6 @@ use crate::{
         vault_info::create_vault_info_file
     },
     paths::{ get_default_vault_file_path, get_local_dir, vault_exists },
-    types::VaultError,
 };
 
 // Creates the file that holds the name of the default vault.

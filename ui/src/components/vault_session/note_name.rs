@@ -12,7 +12,11 @@ pub fn NoteName(onchange: EventHandler<String>) -> Element {
 
     let mut editable = use_editable(|| {
             EditableConfig::new(if let Some(note) = CURRENT_NOTE.cloned() {
-                note.title
+                if let Ok(title) = note.title() {
+                    title
+                } else {
+                    String::default()
+                }
             } else {
                 String::default()
             })
@@ -26,7 +30,10 @@ pub fn NoteName(onchange: EventHandler<String>) -> Element {
 
     if let Some(note) = CURRENT_NOTE.cloned() {
         if note.id != *note_id.read() as u32 {
-            editable.editor_mut().write().set(note.title.as_str());
+            if let Ok(title) = note.title() {
+                editable.editor_mut().write().set(&title);
+            }
+
             *note_id.write() = note.id;
         }
     }

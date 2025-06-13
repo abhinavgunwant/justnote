@@ -17,10 +17,10 @@ use std::{
     io::{ Error as IOError, ErrorKind as IOErrorKind },
 };
 
-use flexbuffers::{ FlexbufferSerializer, Reader };
-use serde::{ Serialize, Deserialize };
+use fb::note::{ note_to_bytes, bytes_to_note };
+use types::Note;
 
-use crate::{ paths::get_vault_dir, types::note::Note };
+use crate::paths::get_vault_dir;
 
 pub fn create_vault_notes_directory(path: &PathBuf) -> Result<(), String> {
     let mut dir_path_buf = path.clone();
@@ -94,13 +94,10 @@ pub fn get_note(vault_name: &String, note_id: u32) -> Result<Note, IOError> {
                         return Err(IOError::from(IOErrorKind::UnexpectedEof));
                     }
 
-                    if let Ok(reader) = Reader::get_root(bytes.as_slice()) {
-                        if let Ok(note) = Note::deserialize(reader) {
-                            return Ok(note);
-                        }
+                    match bytes_to_note(bytes) {
+                        Ok(note) => Ok(note),
+                        Err(e) => Err(e),
                     }
-
-                    Err(IOError::from(IOErrorKind::Other))
                 }
 
                 Err(e) => Err(e),
@@ -129,15 +126,8 @@ pub fn save_note_to_vault(
                     }
                 }
             }
-            
-            let mut serializer = FlexbufferSerializer::new();
 
-            if let Err(e) = note.serialize(&mut serializer) {
-                eprintln!("{}", e);
-                return Err(IOError::from(IOErrorKind::Other));
-            }
-
-            match write(path.as_str(), serializer.view()) {
+            match write(path.as_str(), note_to_bytes(note).as_slice()) {
                 Ok(_) => Ok(()),
                 Err(e) => Err(e),
             }
