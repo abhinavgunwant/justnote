@@ -10,7 +10,10 @@ Each "Vault" is secured by it's own unique password.
 
 ## Building and running
 
-You need to have the rust toolchain installed.
+### Pre-requisites
+- You need to have the rust toolchain installed.
+- You need to have the `flatc` binary from the [flatbuffer GitHub releases](https://github.com/google/flatbuffers/releases). Make sure it's added to your `PATH` environment.
+  This is required to build the flatbuffer generated rust code in this repo.
 
 Dev build:
 
@@ -23,4 +26,15 @@ Release build:
 ```bash
 cargo build --release
 ```
+
+### Build the flatbuffer generated code
+
+`cd` into the "fb" directory in this repo and run:
+
+```bash
+flatc --rust -o ./src/generated/ ./fbs/<fbs-file>
+```
+
+Here, replace `<fbs-file>` with any `.fbs` file from the `fb/fbs/` directory
+that you want.
 
