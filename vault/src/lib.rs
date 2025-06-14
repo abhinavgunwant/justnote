@@ -1,4 +1,3 @@
-pub mod types;
 pub mod auth;
 pub mod paths;
 pub mod files;

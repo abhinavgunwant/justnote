@@ -3,3 +3,4 @@
 mod generated;
 pub mod note;
 pub mod vault_info;
+pub mod vault_index;

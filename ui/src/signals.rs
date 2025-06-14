@@ -2,9 +2,9 @@
 
 use freya::prelude::*;
 
-use vault::{ is_first_start, types::vault_index::VaultIndex };
+use vault::is_first_start;
 
-use types::Note;
+use types::{ Note, VaultIndex };
 
 use crate::components::vault_session::ActiveArea;
 

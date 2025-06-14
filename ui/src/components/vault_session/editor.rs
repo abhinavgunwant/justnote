@@ -1,10 +1,7 @@
 use freya::prelude::*;
 
-use vault::{
-    files::{ notes::save_note_to_vault, vault_index::set_vault_index },
-    types::vault_index_entry::{ VaultIndexEntry, VaultIndexEntryType },
-};
-use types::Note;
+use vault::files::{ notes::save_note_to_vault, vault_index::set_vault_index };
+use types::{ Note, VaultIndexEntry, VaultIndexEntryType };
 
 use crate::{
     colors::COLOR_DARK_4,

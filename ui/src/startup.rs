@@ -1,8 +1,9 @@
 use vault::{
     is_first_start,
     files::{ vault::get_default_vault_name, vault_index::get_vault_index },
-    types::vault_index::VaultIndex,
 };
+
+use types::VaultIndex;
 
 use crate::signals::{ FIRST_START, VAULT_INDEX, VAULT_NAME };
 

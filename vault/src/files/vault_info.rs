@@ -6,7 +6,7 @@ use std::{
 use types::VaultInfo;
 use fb::vault_info::{ bytes_to_vault_info, vault_info_to_bytes };
 
-use crate::{auth::generate_password_hash, paths::{get_local_dir, get_vault_root_dir}};
+use crate::{ auth::generate_password_hash, paths::get_vault_root_dir };
 
 pub fn get_vault_info_path(vault_name: &str) -> String {
     if let Some(mut path) = get_vault_root_dir() {

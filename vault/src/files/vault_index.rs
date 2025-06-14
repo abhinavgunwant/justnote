@@ -1,12 +1,14 @@
-use std::{ path::PathBuf, fs::{ File, read, write } };
-
-use flexbuffers::{ FlexbufferSerializer, Reader };
-use serde::{ Deserialize, Serialize };
-
-use crate::{
-    paths::get_vault_index_path,
-    types::vault_index::VaultIndex,
+use std::{
+    path::PathBuf, fs::{ File, read, write },
+    io::{ Error as IOError, ErrorKind as IOErrorKind },
 };
+
+use fb::vault_index::{bytes_to_vault_index, vault_index_to_bytes};
+use flexbuffers::{ FlexbufferSerializer, Reader };
+
+use types::VaultIndex;
+
+use crate::paths::get_vault_index_path;
 
 pub fn create_vault_index_file(path: &PathBuf) -> Result<(), String> {
     let mut index_path_buf = path.clone();
@@ -29,74 +31,52 @@ pub fn create_vault_index_file(path: &PathBuf) -> Result<(), String> {
 }
 
 /// Reads the vault index file, and returns the deserialized object
-pub fn get_vault_index(vault_name: &String) -> Result<VaultIndex, std::io::Error> {
+pub fn get_vault_index(vault_name: &String) -> Result<VaultIndex, IOError> {
     if let Some(path) = get_vault_index_path(vault_name) {
         if let Some(file_path) = path.to_str() {
-            match read(file_path) {
-                Ok(bytes) => {
-                    if bytes.is_empty() {
-                        println!("Vault index is empty!");
-                        return Ok(VaultIndex::default());
-                    }
-
-                    if let Ok(reader) = Reader::get_root(bytes.as_slice()) {
-                        if let Ok(vault_index) = VaultIndex::deserialize(reader) {
-                            return Ok(vault_index);
-                        }
-                    }
-
-                    println!("Other Index error");
-
-                    return Err(std::io::Error::new(
-                        std::io::ErrorKind::Other, "Other Error"
-                    ));
-                }
-
+            return match read(file_path) {
+                Ok(bytes) => bytes_to_vault_index(bytes),
                 Err(e) => {
                     eprintln!("Other Index error: {}", e);
-                    return Err(e);
+                    Err(e)
                 }
             };
         }
 
         println!("Invalid Index data");
-        return Err(std::io::Error::from(std::io::ErrorKind::InvalidData));
+        return Err(IOError::from(IOErrorKind::InvalidData));
     }
 
     println!("Index not found");
 
-    Err(std::io::Error::from(std::io::ErrorKind::NotFound))
+    Err(IOError::from(IOErrorKind::NotFound))
 }
 
 /// Serializes `vault_index` into vault index file.
 pub fn set_vault_index(
     vault_name: &String, vault_index: &VaultIndex,
-) -> Result<(), std::io::Error> {
+) -> Result<(), IOError> {
     if let Some(path) = get_vault_index_path(&vault_name) {
-        let mut serializer = FlexbufferSerializer::new();
+        let bytes = vault_index_to_bytes(vault_index);
 
-        if let Err(e) = vault_index.serialize(&mut serializer) {
-            eprintln!("{}", e);
-        }
-
-        return match write(path, serializer.view()) {
+        return match write(path, bytes.as_slice()) {
             Ok(_) => Ok(()),
             Err(e) => Err(e),
         };
     }
 
-    Err(std::io::Error::from(std::io::ErrorKind::NotFound))
+    Err(IOError::from(IOErrorKind::NotFound))
 }
 
 /// Builds entire vault index from scratch
 ///
 /// TODO: Implement it.
 /// For now it just builds an empty index
-pub fn build_vault_index(vault_name: &String) -> Result<(), std::io::Error> {
+pub fn build_vault_index(vault_name: &String) -> Result<(), IOError> {
     if let Some(_path) = get_vault_index_path(vault_name) {
         return set_vault_index(vault_name, &VaultIndex::default());
     }
 
-    Err(std::io::Error::from(std::io::ErrorKind::NotFound))
+    Err(IOError::from(IOErrorKind::NotFound))
 }
 
