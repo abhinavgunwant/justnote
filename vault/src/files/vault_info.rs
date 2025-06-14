@@ -1,8 +1,25 @@
-use std::{ path::PathBuf, fs::File, io::Write };
-use serde::Serialize;
-use flexbuffers::FlexbufferSerializer;
+use std::{
+    path::PathBuf, fs::{ File, read },
+    io::{ Error as IOError, ErrorKind as IOErrorKind, Write },
+};
 
-use crate::{ auth::generate_password_hash, types::vault_info::VaultInfo };
+use types::VaultInfo;
+use fb::vault_info::{ bytes_to_vault_info, vault_info_to_bytes };
+
+use crate::{auth::generate_password_hash, paths::{get_local_dir, get_vault_root_dir}};
+
+pub fn get_vault_info_path(vault_name: &str) -> String {
+    if let Some(mut path) = get_vault_root_dir() {
+        path.push(vault_name);
+        path.push("info");
+
+        if let Some(path_str) = path.to_str() {
+            return path_str.to_owned();
+        }
+    }
+
+    String::default()
+}
 
 pub fn create_vault_info_file(
     path: &PathBuf, name: &String, password: &String
@@ -10,31 +27,21 @@ pub fn create_vault_info_file(
     let mut info_path_buf = path.clone();
     info_path_buf.push("info");
 
-    let info_path = if let Some(p) = info_path_buf.to_str() { p } else { "" };
+    let info_path = get_vault_info_path(name);
 
     if !info_path.is_empty() {
         return match File::create(info_path) {
             Ok(mut file) => {
                 match generate_password_hash(&password) {
-                    Ok(pwd) => {
-                        let info = VaultInfo {
-                            name: name.clone(), password: pwd
-                        };
-                        let mut serializer = FlexbufferSerializer::new();
+                    Ok(password) => {
+                        let info = VaultInfo { name: name.clone(), password };
 
-                        match info.serialize(&mut serializer) {
-                            Ok(_) => {}
-                            Err(e) => {
-                                eprintln!("{}", e);
-                            }
-                        }
-
-                        match file.write(serializer.view()) {
+                        match file.write(vault_info_to_bytes(&info).as_slice()) {
                             Ok(_) => Ok(()),
 
                             Err(e) => {
                                 eprintln!("{}", e);
-                                Err(String::from(""))
+                                Err(String::from("Some issue writing file"))
                             }
                         }
                     }
@@ -51,5 +58,21 @@ pub fn create_vault_info_file(
     }
 
     Err(String::from("Invalid path"))
+}
+
+pub fn get_vault_info(vault_name: &str) -> Result<VaultInfo, IOError> {
+    let info_file = get_vault_info_path(vault_name);
+
+    if info_file.is_empty() {
+        return Err(IOError::new(
+            IOErrorKind::NotFound,
+            "Vault info file not found."
+        ));
+    }
+
+    match read(info_file) {
+        Ok(bytes) => bytes_to_vault_info(bytes),
+        Err(e) => Err(e),
+    }
 }
 

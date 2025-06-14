@@ -115,6 +115,6 @@ fn build_fbs(fbs_file: &str) {
 fn main() {
     check_cmd("flatc");
     build_fbs("note");
-    // build_fbs("retro");
+    build_fbs("vault_info");
 }
 

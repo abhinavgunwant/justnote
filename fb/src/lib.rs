@@ -2,3 +2,4 @@
 
 mod generated;
 pub mod note;
+pub mod vault_info;

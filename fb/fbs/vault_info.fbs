@@ -1,0 +1,9 @@
+namespace VaultInfo;
+
+table VaultInfo {
+    name: string;
+    password: string;
+}
+
+root_type VaultInfo;
+

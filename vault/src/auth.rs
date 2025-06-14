@@ -1,4 +1,3 @@
-use std::fs::read;
 use argon2:: {
     password_hash::{
         rand_core::OsRng,
@@ -6,15 +5,10 @@ use argon2:: {
     },
     Argon2, Algorithm, Version, Params,
 };
-use flexbuffers::Reader;
-use serde::Deserialize;
 
 use types::VaultError;
 
-use crate::{
-    types::vault_info::VaultInfo,
-    paths::{ vault_exists, get_local_dir },
-};
+use crate::{ files::vault_info::get_vault_info, paths::vault_exists };
 
 fn get_argon<'a>() -> Argon2<'a> {
     Argon2::new(
@@ -53,49 +47,23 @@ pub fn authenticate_vault(name: &str, password: &str) -> bool {
         };
     }
 
-    if let Some(mut local_dir) = get_local_dir() {
-        local_dir.push("vaults");
-        local_dir.push(name);
-        local_dir.push("info");
-
-        let info_file_path;
-
-        if let Some(path) = local_dir.as_path().to_str() {
-            info_file_path = path;
-        } else {
-            return false;
-        }
-
-        match read(info_file_path) {
-            Ok(bytes) => {
-                match Reader::get_root(bytes.as_slice()) {
-                    Ok(reader) => {
-                        match VaultInfo::deserialize(reader) {
-                            Ok(vault_info) => {
-                                match PasswordHash::new(&vault_info.password) {
-                                    Ok(parsed_hash) => {
-                                        return get_argon()
-                                            .verify_password(
-                                                password.as_bytes(),
-                                                &parsed_hash
-                                            )
-                                            .is_ok();
-                                    }
-
-                                    Err(e) => { eprintln!("{}", e); }
-                                }
-                            }
-
-                            Err(e) => { eprintln!("{}", e); }
-                        }
-                    }
-
-                    Err(e) => { eprintln!("{}", e); }
+    match get_vault_info(name) {
+        Ok(vault_info) => {
+            match PasswordHash::new(&vault_info.password) {
+                Ok(parsed_hash) => {
+                    return get_argon()
+                        .verify_password(
+                            password.as_bytes(),
+                            &parsed_hash
+                        )
+                        .is_ok();
                 }
-            }
 
-            Err(e) => { eprintln!("{}", e); }
+                Err(e) => { eprintln!("{}", e); }
+            }
         }
+
+        Err(e) => { eprintln!("{}", e); }
     }
 
     return false;

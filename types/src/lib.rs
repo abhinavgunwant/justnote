@@ -1,6 +1,8 @@
 mod note;
+mod vault_info;
 
 pub use note::Note;
+pub use vault_info::VaultInfo;
 
 #[derive(Debug, PartialEq)]
 pub enum VaultError {
