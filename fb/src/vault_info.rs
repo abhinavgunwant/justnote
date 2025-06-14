@@ -17,14 +17,13 @@ pub fn vault_info_to_bytes(vault_info: &VaultInfo) -> Vec<u8> {
         name, password
     });
 
-
     fb.finish(vault_info, None);
 
     fb.finished_data().to_owned()
 }
 
 pub fn bytes_to_vault_info(bytes: Vec<u8>) -> Result<VaultInfo, IOError> {
-    if bytes.is_ascii() {
+    if bytes.is_empty() {
         return Err(IOError::new(
             IOErrorKind::UnexpectedEof,
             "Vault Info File Empty"
