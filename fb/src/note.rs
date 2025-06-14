@@ -35,6 +35,13 @@ pub fn note_to_bytes(note: &Note) -> Vec<u8> {
 }
 
 pub fn bytes_to_note(bytes: Vec<u8>) -> Result<Note, IOError> {
+    if bytes.is_empty() {
+        return Err(IOError::new(
+            IOErrorKind::UnexpectedEof,
+            "Vault Info File Empty"
+        ));
+    }
+
     match root_as_note(bytes.as_slice()) {
         Ok(note_fb) => {
             let spec_version = if let Some(specv) = note_fb.spec_version() {
