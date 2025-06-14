@@ -1,8 +1,12 @@
 mod note;
 mod vault_info;
+mod vault_index;
+mod vault_index_entry;
 
 pub use note::Note;
 pub use vault_info::VaultInfo;
+pub use vault_index::VaultIndex;
+pub use vault_index_entry::{ VaultIndexEntry, VaultIndexEntryType };
 
 #[derive(Debug, PartialEq)]
 pub enum VaultError {

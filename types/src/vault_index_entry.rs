@@ -1,13 +1,11 @@
-use serde::{ Serialize, Deserialize };
-
-#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Clone)]
 pub enum VaultIndexEntryType {
     #[default]
     Note,
     Folder,
 }
 
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Clone)]
 pub struct VaultIndexEntry {
     pub id: u32,
     pub name: String,
@@ -17,12 +15,7 @@ pub struct VaultIndexEntry {
 
 impl VaultIndexEntry {
     pub fn new_note(id: u32, name: String) -> Self {
-        Self {
-            id,
-            name,
-            entry_type: VaultIndexEntryType::Note,
-            parent_folder: None,
-        }
+        Self { id, name, ..Default::default() }
     }
 
     pub fn new_folder(id: u32, name: String) -> Self {
@@ -30,7 +23,7 @@ impl VaultIndexEntry {
             id,
             name,
             entry_type: VaultIndexEntryType::Folder,
-            parent_folder: None,
+            ..Default::default()
         }
     }
 }
