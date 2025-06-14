@@ -4,7 +4,6 @@ use std::{
 };
 
 use fb::vault_index::{bytes_to_vault_index, vault_index_to_bytes};
-use flexbuffers::{ FlexbufferSerializer, Reader };
 
 use types::VaultIndex;
 

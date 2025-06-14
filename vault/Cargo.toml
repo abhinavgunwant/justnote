@@ -6,7 +6,6 @@ edition = "2024"
 [dependencies]
 argon2 = { version = "0.5.3", features = [ "std" ] }
 dirs-next = "2.0.0"
-flexbuffers = "25.2.10"
 serde = "1.0.219"
 fb = { path = "../fb" }
 types = { path = "../types" }
