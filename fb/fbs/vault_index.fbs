@@ -1,6 +1,6 @@
 namespace VaultIndex;
 
-enum VaultIndexEntryType: byte {
+enum VaultIndexEntryType: ubyte {
     Note = 0,
     Folder
 }
