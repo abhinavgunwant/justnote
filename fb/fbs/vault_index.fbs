@@ -1,0 +1,21 @@
+namespace VaultIndex;
+
+enum VaultIndexEntryType: byte {
+    Note = 0,
+    Folder
+}
+
+table VaultIndexEntry {
+    id: uint32;
+    name: string;
+    entry_type: VaultIndexEntryType = Note;
+    parent_folder: uint32 = null;
+}
+
+table VaultIndex {
+    last_id: uint32;
+    entries: [VaultIndexEntry];
+}
+
+root_type VaultIndex;
+

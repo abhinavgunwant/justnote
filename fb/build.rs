@@ -116,5 +116,6 @@ fn main() {
     check_cmd("flatc");
     build_fbs("note");
     build_fbs("vault_info");
+    build_fbs("vault_index");
 }
 
