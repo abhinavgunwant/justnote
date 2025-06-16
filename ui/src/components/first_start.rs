@@ -2,8 +2,7 @@ use freya::prelude::*;
 
 use vault::files::vault::create_vault;
 use crate::{
-    signals::FIRST_START,
-    styles::{ PRIMARY_BUTTON, SECONDARY_BUTTON }
+    signals::FIRST_START, styles::{ PRIMARY_BUTTON, SECONDARY_BUTTON }
 };
 
 #[derive(Debug, Default, PartialEq)]
@@ -20,6 +19,23 @@ pub fn FirstStart() -> Element {
     let mut vault_name = use_signal(String::default);
     let mut vault_pass = use_signal(String::default);
     let mut error = use_signal(String::default);
+    let mut no_password = use_signal(|| false);
+
+    let password_input_theme = InputThemeWith {
+        font_theme: None,
+        placeholder_font_theme: None,
+        background: if *no_password.read() {
+            Some(Cow::Borrowed("#aaaaaa"))
+        } else {
+            None
+        },
+        hover_background: None,
+        border_fill: None,
+        focus_border_fill: None,
+        shadow: None,
+        margin: None,
+        corner_radius: None,
+    };
 
     rsx! {
         rect {
@@ -116,6 +132,7 @@ pub fn FirstStart() -> Element {
                         width: "200",
                         value: "{ vault_name }",
                         placeholder: "Vault Name",
+                        auto_focus: true,
                         onchange: move |e| vault_name.set(e)
                     }
 
@@ -124,7 +141,29 @@ pub fn FirstStart() -> Element {
                         value: "{ vault_pass }",
                         placeholder: "Vault Password",
                         mode: InputMode::Hidden('*'),
-                        onchange: move |e| vault_pass.set(e)
+                        theme: password_input_theme,
+                        onchange: move |e| {
+                            if !*no_password.read() {
+                                vault_pass.set(e);
+                            }
+                        }
+                    }
+
+                    Tile {
+                        onselect: move |_| {
+                            let new_no_password = !*no_password.read();
+                            *no_password.write() = new_no_password;
+                        },
+
+                        leading: rsx! {
+                            Checkbox {
+                                selected: *no_password.read(),
+                            }
+                        },
+
+                        label {
+                            "Don't encrypt this vault"
+                        }
                     }
 
                     rect {
