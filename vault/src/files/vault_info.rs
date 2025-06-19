@@ -21,6 +21,12 @@ pub fn get_vault_info_path(vault_name: &str) -> String {
     String::default()
 }
 
+/// Creates vault info file with vault name and password.
+///
+/// Password is hashed before storing to the file.
+///
+/// Stores empty string as password hash when no password is
+/// given
 pub fn create_vault_info_file(
     path: &PathBuf, name: &String, password: &String
 ) -> Result<(), String> {
@@ -32,21 +38,26 @@ pub fn create_vault_info_file(
     if !info_path.is_empty() {
         return match File::create(info_path) {
             Ok(mut file) => {
-                match generate_password_hash(&password) {
-                    Ok(password) => {
-                        let info = VaultInfo { name: name.clone(), password };
-
-                        match file.write(vault_info_to_bytes(&info).as_slice()) {
-                            Ok(_) => Ok(()),
-
-                            Err(e) => {
-                                eprintln!("{}", e);
-                                Err(String::from("Some issue writing file"))
-                            }
-                        }
+                let password_hash: String = if !password.is_empty() {
+                    match generate_password_hash(&password) {
+                        Ok(password) => { password }
+                        Err(e) => { return Err(e); },
                     }
+                } else {
+                    String::default()
+                };
 
-                    Err(e) => Err(e),
+                println!("password hash for {} is {}", password, password_hash);
+
+                let info = VaultInfo::new(name.clone(), password_hash);
+
+                match file.write(vault_info_to_bytes(&info).as_slice()) {
+                    Ok(_) => Ok(()),
+
+                    Err(e) => {
+                        eprintln!("{}", e);
+                        Err(String::from("Some issue writing file"))
+                    }
                 }
             }
 

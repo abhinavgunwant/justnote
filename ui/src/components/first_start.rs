@@ -2,7 +2,9 @@ use freya::prelude::*;
 
 use vault::files::vault::create_vault;
 use crate::{
-    signals::FIRST_START, styles::{ PRIMARY_BUTTON, SECONDARY_BUTTON }
+    signals::FIRST_START, styles::{
+        PRIMARY_BUTTON, SECONDARY_BUTTON, password_input_theme,
+    },
 };
 
 #[derive(Debug, Default, PartialEq)]
@@ -20,22 +22,6 @@ pub fn FirstStart() -> Element {
     let mut vault_pass = use_signal(String::default);
     let mut error = use_signal(String::default);
     let mut no_password = use_signal(|| false);
-
-    let password_input_theme = InputThemeWith {
-        font_theme: None,
-        placeholder_font_theme: None,
-        background: if *no_password.read() {
-            Some(Cow::Borrowed("#aaaaaa"))
-        } else {
-            None
-        },
-        hover_background: None,
-        border_fill: None,
-        focus_border_fill: None,
-        shadow: None,
-        margin: None,
-        corner_radius: None,
-    };
 
     rsx! {
         rect {
@@ -141,7 +127,7 @@ pub fn FirstStart() -> Element {
                         value: "{ vault_pass }",
                         placeholder: "Vault Password",
                         mode: InputMode::Hidden('*'),
-                        theme: password_input_theme,
+                        theme: password_input_theme(*no_password.read()),
                         onchange: move |e| {
                             if !*no_password.read() {
                                 vault_pass.set(e);

@@ -10,6 +10,14 @@ use types::VaultError;
 
 use crate::{ files::vault_info::get_vault_info, paths::vault_exists };
 
+#[derive(Debug, PartialEq)]
+pub enum AuthenticationError {
+    WrongPassword,
+    VaultDoesNotExist,
+    VaultIsUnencrypted,
+    OtherError,
+}
+
 fn get_argon<'a>() -> Argon2<'a> {
     Argon2::new(
         Algorithm::Argon2id,// Algorithm: Argon2id
@@ -18,7 +26,7 @@ fn get_argon<'a>() -> Argon2<'a> {
             16384,      // m = 16MB
             8,          // t = 2
             1,          // p = 1
-            Some(64)    // Output size in bytes
+            Some(32)    // Output size in bytes
         ).unwrap()
     )
 }
@@ -40,23 +48,50 @@ pub fn generate_password_hash(password: &str) -> Result<String, String> {
 /// Authenticates access to the vault by verifying the password
 ///
 /// Note: It's okay to not have index
-pub fn authenticate_vault(name: &str, password: &str) -> bool {
+pub fn authenticate_vault(
+    name: &str, password: &str
+) -> Result<[u8; 32], AuthenticationError> {
     if let Err(e) = vault_exists(name) {
         let VaultError::NoIndex(_) = e else {
-            return false;
+            return Err(AuthenticationError::VaultDoesNotExist);
         };
     }
 
     match get_vault_info(name) {
         Ok(vault_info) => {
+            println!("{}", vault_info.password);
+
+            if vault_info.password.is_empty() {
+                return Err(AuthenticationError::VaultIsUnencrypted);
+            }
+
             match PasswordHash::new(&vault_info.password) {
                 Ok(parsed_hash) => {
-                    return get_argon()
-                        .verify_password(
-                            password.as_bytes(),
-                            &parsed_hash
-                        )
-                        .is_ok();
+                    let argon = get_argon();
+
+                    match argon.verify_password(
+                        password.as_bytes(), &parsed_hash
+                    ) {
+                        Ok(()) => {
+                            let mut key: [u8; 32] = [0u8; 32];
+
+                            if let Some(salt) = parsed_hash.salt {
+                                if let Err(e) = argon.hash_password_into(
+                                    password.as_bytes(),
+                                    salt.as_ref().as_bytes(),
+                                    &mut key,
+                                ) {
+                                    eprintln!("Error while hashing password into: {}", e);
+                                } else {
+                                    return Ok(key);
+                                }
+                            }
+                        }
+
+                        Err(e) => { eprintln!("{}", e); }
+                    }
+
+                    return Err(AuthenticationError::WrongPassword);
                 }
 
                 Err(e) => { eprintln!("{}", e); }
@@ -66,6 +101,6 @@ pub fn authenticate_vault(name: &str, password: &str) -> bool {
         Err(e) => { eprintln!("{}", e); }
     }
 
-    return false;
+    Err(AuthenticationError::OtherError)
 }
 

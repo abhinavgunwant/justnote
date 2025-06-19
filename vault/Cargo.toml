@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-argon2 = { version = "0.5.3", features = [ "std" ] }
+argon2 = { version = "0.5.3", features = [ "std", "alloc" ] }
 dirs-next = "2.0.0"
 serde = "1.0.219"
 fb = { path = "../fb" }

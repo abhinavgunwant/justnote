@@ -33,3 +33,23 @@ pub const SECONDARY_BUTTON: ButtonThemeWith = ButtonThemeWith {
     padding: Some(Cow::Borrowed("8 12")),
 };
 
+pub fn password_input_theme(no_password: bool) -> InputThemeWith {
+    let background = if no_password {
+        Some(Cow::Borrowed("#aaaaaa"))
+    } else {
+        None
+    };
+
+    InputThemeWith {
+        font_theme: None,
+        placeholder_font_theme: None,
+        background,
+        hover_background: None,
+        border_fill: None,
+        focus_border_fill: None,
+        shadow: None,
+        margin: None,
+        corner_radius: None,
+    }
+}
+
