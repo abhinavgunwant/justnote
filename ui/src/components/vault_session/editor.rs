@@ -8,6 +8,7 @@ use crate::{
     components::vault_session::{ note_name::NoteName, ActiveArea },
     signals::{
         ACTIVE_AREA, CURRENT_NOTE, VAULT_INDEX, VAULT_NAME, EXPLORER_WIDTH,
+        VAULT_KEY,
     },
 };
 
@@ -87,7 +88,7 @@ pub fn Editor() -> Element {
                             }
                         }
 
-                        match save_note_to_vault(&vault_name, &new_note) {
+                        match save_note_to_vault(&vault_name, &new_note, *VAULT_KEY.read()) {
                             Ok(()) => {
                                 let _ = set_vault_index(&vault_name, &current_index);
 
@@ -119,7 +120,9 @@ pub fn Editor() -> Element {
 
                     let note = Note::new(id, name, String::default(), false);
 
-                    let _ = save_note_to_vault(&vault_name, &note);
+                    let key = *VAULT_KEY.read();
+
+                    let _ = save_note_to_vault(&vault_name, &note, key);
 
                     VAULT_INDEX.write().last_id = id;
 

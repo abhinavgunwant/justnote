@@ -4,7 +4,7 @@ use vault::files::notes::get_note;
 
 use crate::{
     colors::{ COLOR_DARK_0, COLOR_DARK_1 },
-    signals::{ CURRENT_NOTE, EXPLORER_WIDTH },
+    signals::{ CURRENT_NOTE, EXPLORER_WIDTH, VAULT_KEY },
 };
 
 /// The explorer note entry.
@@ -27,7 +27,7 @@ pub fn ExplorerNoteEntry(
 
     let onpointerup = move |_| {
         if *button_hover.read() {
-            if let Ok(note) = get_note(&vault_name, note_id) {
+            if let Ok(note) = get_note(&vault_name, note_id, *VAULT_KEY.read()) {
                 *CURRENT_NOTE.write() = Some(note);
             }
         }
