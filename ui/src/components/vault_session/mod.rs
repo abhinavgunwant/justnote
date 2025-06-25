@@ -7,7 +7,7 @@ use freya::prelude::*;
 use vault::auth::{ authenticate_vault, AuthenticationError };
 
 use crate::{
-    signals::{ AUTHENTICATED, VAULT_NAME, VAULT_KEY },
+    signals::{ AUTHENTICATED, VAULT_NAME, VAULT_KEY, SHOW_EXPLORER },
     styles::{ password_input_theme, PRIMARY_BUTTON, SECONDARY_BUTTON },
     components::vault_session::{
         explorer::Explorer,
@@ -129,7 +129,9 @@ pub fn VaultSession() -> Element {
             main_align: "start",
             direction: "horizontal",
 
-            Explorer {},
+            if *SHOW_EXPLORER.read() {
+                Explorer {}
+            }
 
             Editor {},
         }

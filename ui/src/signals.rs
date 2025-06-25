@@ -12,6 +12,8 @@ pub static FIRST_START: GlobalSignal<bool> = Signal::global(|| {
     is_first_start()
 });
 
+pub static SHOW_EXPLORER: GlobalSignal<bool> = Signal::global(|| true);
+
 /// Vault opened in the current session.
 pub static VAULT_NAME: GlobalSignal<Option<String>> = Signal::global(|| None);
 
