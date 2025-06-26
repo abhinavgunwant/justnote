@@ -56,6 +56,11 @@ pub fn NoteName(onchange: EventHandler<String>) -> Element {
 
     let onclick = move |_: MouseEvent| {
         editable.process_event(&EditableEvent::Click);
+
+        if !is_active {
+            let note_name_len = editable.editor().peek().to_string().len();
+            editable.editor_mut().write().set_selection((0, note_name_len));
+        }
     };
 
     let onglobalkeydown = move |e: KeyboardEvent| {
@@ -76,6 +81,18 @@ pub fn NoteName(onchange: EventHandler<String>) -> Element {
         None
     };
     let cursor_id = if is_active { Some("0") } else { None };
+
+    use_effect(move || {
+        let is_active: bool = *ACTIVE_AREA.read() == ActiveArea::NoteName;
+        let mut editor_mut = editable.editor_mut().write();
+
+        if let Some(_) = editor_mut.get_selection() {
+            if !is_active {
+                editor_mut.clear_selection();
+                editor_mut.cursor_mut().set(0);
+            }
+        }
+    });
 
     rsx! {
         rect {
