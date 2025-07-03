@@ -8,7 +8,7 @@ use crate::{
     components::vault_session::{ note_name::NoteName, ActiveArea },
     signals::{
         ACTIVE_AREA, CURRENT_NOTE, VAULT_INDEX, VAULT_NAME, EXPLORER_WIDTH,
-        VAULT_KEY,
+        VAULT_KEY, SHOW_EXPLORER,
     },
 };
 
@@ -162,7 +162,12 @@ pub fn Editor() -> Element {
 
     rsx! {
         ScrollView {
-            width: "calc(100% - { EXPLORER_WIDTH })",
+            width: if *SHOW_EXPLORER.read() {
+                "calc(100% - { EXPLORER_WIDTH })"
+            } else {
+                "100%"
+            },
+
             padding: "24",
 
             NoteName {
