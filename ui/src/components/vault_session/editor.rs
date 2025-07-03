@@ -66,6 +66,8 @@ pub fn Editor() -> Element {
 
         if let Modifiers::CONTROL = e.data.modifiers {
             if let Key::Character(c) = e.data.key.clone() {
+                if c == "e" || c == "E" { return; }
+
                 if c == "s" || c == "S" {
                     println!("Save Command!");
                     let Some(vault_name) = VAULT_NAME.cloned() else {
