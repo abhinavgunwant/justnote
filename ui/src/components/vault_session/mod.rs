@@ -4,6 +4,8 @@ pub mod note_name;
 
 use freya::prelude::*;
 
+use log::{ info, error };
+
 use vault::auth::{ authenticate_vault, AuthenticationError };
 
 use crate::{
@@ -94,8 +96,8 @@ pub fn VaultSession() -> Element {
                                             *AUTHENTICATED.write() = true;
                                             *VAULT_KEY.write() = [0u8; 32];
                                         }
-                                        eprintln!("{:?}", e);
-                                        println!("password did not match");
+                                        error!("{:?}", e);
+                                        info!("password did not match");
                                     }
                                 }
                             },

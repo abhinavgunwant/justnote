@@ -6,4 +6,5 @@ edition = "2024"
 [dependencies]
 flatbuffers = "25.2.10"
 types = { path = "../types" }
+log = "0.4.27"
 

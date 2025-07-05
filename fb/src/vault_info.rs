@@ -1,4 +1,7 @@
 use std::io::{ Error as IOError, ErrorKind as IOErrorKind };
+
+use log::error;
+
 use types::VaultInfo;
 use flatbuffers::FlatBufferBuilder;
 
@@ -54,7 +57,7 @@ pub fn bytes_to_vault_info(bytes: Vec<u8>) -> Result<VaultInfo, IOError> {
         }
 
         Err(e) => {
-            eprintln!("{}", e);
+            error!("{}", e);
 
             Err(IOError::new(
                 IOErrorKind::InvalidData,

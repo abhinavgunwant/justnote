@@ -6,6 +6,8 @@ use argon2:: {
     Argon2, Algorithm, Version, Params,
 };
 
+use log::error;
+
 use types::VaultError;
 
 use crate::{ files::vault_info::get_vault_info, paths::vault_exists };
@@ -38,7 +40,7 @@ pub fn generate_password_hash(password: &str) -> Result<String, String> {
     match argon2.hash_password(password.as_bytes(), &salt) {
         Ok(hash) => Ok(hash.to_string()),
         Err(e) => {
-            eprintln!("Error while generating password hash: {}", e);
+            error!("Error while generating password hash: {}", e);
 
             Err(String::from("Some error occured while storing password."))
         }
@@ -59,7 +61,7 @@ pub fn authenticate_vault(
 
     match get_vault_info(name) {
         Ok(vault_info) => {
-            println!("{}", vault_info.password);
+            // debug!("{}", vault_info.password);
 
             if vault_info.password.is_empty() {
                 return Err(AuthenticationError::VaultIsUnencrypted);
@@ -81,24 +83,24 @@ pub fn authenticate_vault(
                                     salt.as_ref().as_bytes(),
                                     &mut key,
                                 ) {
-                                    eprintln!("Error while hashing password into: {}", e);
+                                    error!("Error while hashing password into: {}", e);
                                 } else {
                                     return Ok(key);
                                 }
                             }
                         }
 
-                        Err(e) => { eprintln!("{}", e); }
+                        Err(e) => { error!("{}", e); }
                     }
 
                     return Err(AuthenticationError::WrongPassword);
                 }
 
-                Err(e) => { eprintln!("{}", e); }
+                Err(e) => { error!("{}", e); }
             }
         }
 
-        Err(e) => { eprintln!("{}", e); }
+        Err(e) => { error!("{}", e); }
     }
 
     Err(AuthenticationError::OtherError)

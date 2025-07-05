@@ -3,6 +3,8 @@ use std::{
     io::{ Error as IOError, ErrorKind as IOErrorKind, Write },
 };
 
+use log::error;
+
 use types::VaultInfo;
 use fb::vault_info::{ bytes_to_vault_info, vault_info_to_bytes };
 
@@ -47,7 +49,7 @@ pub fn create_vault_info_file(
                     String::default()
                 };
 
-                println!("password hash for {} is {}", password, password_hash);
+                // debug!("password hash for {} is {}", password, password_hash);
 
                 let info = VaultInfo::new(name.clone(), password_hash);
 
@@ -55,14 +57,14 @@ pub fn create_vault_info_file(
                     Ok(_) => Ok(()),
 
                     Err(e) => {
-                        eprintln!("{}", e);
+                        error!("{}", e);
                         Err(String::from("Some issue writing file"))
                     }
                 }
             }
 
             Err(e) => {
-                eprintln!("{}", e);
+                error!("{}", e);
                 Err(String::from("Couldn't open file"))
             }
         };

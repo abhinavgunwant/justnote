@@ -1,5 +1,7 @@
 use std::{ fs::{ File, read_to_string }, io::Write };
 
+use log::{ debug, error };
+
 use types::VaultError;
 
 use crate::{
@@ -35,7 +37,7 @@ pub fn create_default_vault_file(name: &str) -> Result<(), String> {
                 }
 
                 Err(e) => {
-                    eprintln!("{}", e);
+                    error!("{}", e);
 
                     Err(String::from("Error while writing file"))
                 }
@@ -43,7 +45,7 @@ pub fn create_default_vault_file(name: &str) -> Result<(), String> {
         }
 
         Err(e) => {
-            eprintln!("{}", e);
+            error!("{}", e);
 
             Err(String::from("Couldn't open file"))
         }
@@ -78,7 +80,7 @@ pub fn get_default_vault_name() -> Result<String, VaultError> {
         }
 
         Err(e) => {
-            eprintln!("Error when getting the default vault file name: {}", e);
+            error!("Error when getting the default vault file name: {}", e);
             Err(VaultError::OSError(e.to_string()))
         }
     }
@@ -102,11 +104,11 @@ pub fn create_vault(
         Some(mut path) => {
             path.push("vaults");
             path.push(&name);
-            println!("got local dir: {}", path.to_str().unwrap());
+            debug!("got local dir: {}", path.to_str().unwrap());
 
             if first_start {
                 match create_directories(&path) {
-                    Ok(()) => { println!("Created directories"); }
+                    Ok(()) => { debug!("Created directories"); }
                     Err(e) => { return Err(e); }
                 }
             }
@@ -115,21 +117,21 @@ pub fn create_vault(
                 return Err(format!("{}", e));
             }
 
-            println!("Info file created");
+            debug!("Info file created");
 
             if let Err(e) = create_vault_index_file(&path) {
                 return Err(format!("{}", e));
             }
 
-            println!("Index file created");
+            debug!("Index file created");
 
             if let Err(e) = create_vault_notes_directory(&path) {
                 return Err(format!("{}", e));
             }
 
-            println!("vault notes directory created");
+            debug!("vault notes directory created");
 
-            println!("Creating default vault file");
+            debug!("Creating default vault file");
 
             match create_default_vault_file(&name) {
                 Ok(()) => Ok(()),

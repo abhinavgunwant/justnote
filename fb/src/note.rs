@@ -1,4 +1,7 @@
 use std::io::{ Error as IOError, ErrorKind as IOErrorKind };
+
+use log::error;
+
 use flatbuffers::FlatBufferBuilder;
 
 use types::{ Note, SpecVersion };
@@ -76,7 +79,7 @@ pub fn bytes_to_note(bytes: Vec<u8>) -> Result<Note, IOError> {
         }
 
         Err(e) => {
-            eprintln!("{}", e);
+            error!("{}", e);
 
             Err(IOError::new(
                 IOErrorKind::InvalidData,

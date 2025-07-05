@@ -1,5 +1,7 @@
 use freya::prelude::*;
 
+use log::debug;
+
 use vault::files::{ notes::save_note_to_vault, vault_index::set_vault_index };
 use types::{ Note, VaultIndexEntry, VaultIndexEntryType };
 
@@ -69,7 +71,7 @@ pub fn Editor() -> Element {
                 if c == "e" || c == "E" { return; }
 
                 if c == "s" || c == "S" {
-                    println!("Save Command!");
+                    debug!("Save Command!");
                     let Some(vault_name) = VAULT_NAME.cloned() else {
                         return;
                     };
@@ -104,7 +106,7 @@ pub fn Editor() -> Element {
                 }
 
                 if c == "n" || c == "N" {
-                    println!("New Command!");
+                    debug!("New Command!");
                     let Some(vault_name) = VAULT_NAME.cloned() else {
                         return;
                     };

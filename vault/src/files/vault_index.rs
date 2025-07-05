@@ -3,6 +3,8 @@ use std::{
     io::{ Error as IOError, ErrorKind as IOErrorKind },
 };
 
+use log::error;
+
 use fb::vault_index::{bytes_to_vault_index, vault_index_to_bytes};
 
 use types::VaultIndex;
@@ -20,7 +22,7 @@ pub fn create_vault_index_file(path: &PathBuf) -> Result<(), String> {
             Ok(_) => Ok(()),
 
             Err(e) => {
-                eprintln!("{}", e);
+                error!("{}", e);
                 Err(String::from("Couldn't create file"))
             }
         };
@@ -36,17 +38,17 @@ pub fn get_vault_index(vault_name: &String) -> Result<VaultIndex, IOError> {
             return match read(file_path) {
                 Ok(bytes) => bytes_to_vault_index(bytes),
                 Err(e) => {
-                    eprintln!("Other Index error: {}", e);
+                    error!("Other Index error: {}", e);
                     Err(e)
                 }
             };
         }
 
-        println!("Invalid Index data");
+        error!("Invalid Index data");
         return Err(IOError::from(IOErrorKind::InvalidData));
     }
 
-    println!("Index not found");
+    error!("Index not found");
 
     Err(IOError::from(IOErrorKind::NotFound))
 }

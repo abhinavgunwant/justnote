@@ -2,6 +2,9 @@ use std::{
     io::{ Error as IOError, ErrorKind as IOErrorKind },
     convert::{ From, Into },
 };
+
+use log::error;
+
 use flatbuffers::{FlatBufferBuilder, WIPOffset};
 use types::{ VaultIndex, VaultIndexEntry, VaultIndexEntryType };
 
@@ -88,7 +91,7 @@ pub fn bytes_to_vault_index(bytes: Vec<u8>) -> Result<VaultIndex, IOError> {
         }
 
         Err(e) => {
-            eprintln!("{}", e);
+            error!("{}", e);
 
             Err(IOError::new(
                 IOErrorKind::InvalidData,

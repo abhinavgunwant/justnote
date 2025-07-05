@@ -1,5 +1,7 @@
 use freya::prelude::*;
 
+use log::debug;
+
 use crate::{
     startup::startup, colors::COLOR_DARK_0,
     signals::{ FIRST_START, SHOW_EXPLORER },
@@ -17,7 +19,7 @@ pub fn app() -> Element {
         if let Modifiers::CONTROL = e.data.modifiers {
             if let Key::Character(c) = e.data.key.clone() {
                 if c == "e" || c == "E" {
-                    println!("Toggle Explorer Command!");
+                    debug!("Toggle Explorer Command!");
 
                     let show = *SHOW_EXPLORER.read();
 

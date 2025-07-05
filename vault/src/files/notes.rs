@@ -17,6 +17,8 @@ use std::{
     io::{ Error as IOError, ErrorKind as IOErrorKind },
 };
 
+use log::{ info, debug, error };
+
 use aes::{
     Aes256,
     cipher::{
@@ -38,7 +40,7 @@ pub fn create_vault_notes_directory(path: &PathBuf) -> Result<(), String> {
             match create_dir_all(p) {
                 Ok(_) => Ok(()),
                 Err(e) => {
-                    eprintln!("{}", e);
+                    error!("{}", e);
                     Err(String::from("Couldn't create notes directory"))
                 }
             }
@@ -72,13 +74,13 @@ fn get_note_path(vault_name: &String, note_id: u32) -> Result<String, IOError>{
         Some(mut path) => {
             path.push("notes");
 
-            println!("got id: {}", note_id);
+            debug!("got id: {}", note_id);
 
             for p in get_relative_note_path(note_id).iter() {
                 path.push(p);
             }
 
-            println!("note path: {:?}", path);
+            debug!("note path: {:?}", path);
 
             if let Some(file_path) = path.to_str() {
                 return Ok(file_path.to_owned());
@@ -218,7 +220,7 @@ pub fn save_note_to_vault(
                 match create_dir_all(p) {
                     Ok(_) => {}
                     Err(e) => {
-                        eprintln!("Error creating dirs: {}", e);
+                        error!("Error creating dirs: {}", e);
                         return Err(e);
                     }
                 }

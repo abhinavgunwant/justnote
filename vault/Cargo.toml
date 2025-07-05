@@ -10,3 +10,4 @@ serde = "1.0.219"
 fb = { path = "../fb" }
 types = { path = "../types" }
 aes = "0.8.4"
+log = "0.4.27"
