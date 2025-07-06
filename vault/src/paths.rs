@@ -77,16 +77,3 @@ pub fn vault_exists(name: &str) -> Result<(), VaultError> {
     return Err(VaultError::NoLocalDir);
 }
 
-/// Gets the file path to the file that holds the name of the default vault
-pub fn get_default_vault_file_path() -> Option<String> {
-    if let Some(mut path) = get_local_dir() {
-        path.push("default-vault");
-
-        if let Some(path_str) = path.to_str() {
-            return Some(String::from(path_str));
-        }
-    }
-
-    None
-}
-
