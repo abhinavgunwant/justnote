@@ -1,6 +1,6 @@
 use freya::prelude::*;
 
-use log::debug;
+use log::{ error, debug };
 
 use vault::files::{ notes::save_note_to_vault, vault_index::set_vault_index };
 use types::{ Note, VaultIndexEntry, VaultIndexEntryType };
@@ -13,6 +13,88 @@ use crate::{
         VAULT_KEY, SHOW_EXPLORER,
     },
 };
+
+/// Does the "control navigation" part for the editor cursor.
+///
+/// #### Params
+/// - `editor` - the editor
+/// - `right` - whether to move right or not (`false` in case of left arrow).
+fn cursor_ctrl_nav(editor_mut: &mut Write<'_, RopeEditor>, right: bool) {
+    let cursor = editor_mut.cursor();
+    let text = editor_mut.to_string();
+
+    let mut new_pos: usize = cursor.pos();
+    let mut text_iter = text.chars().skip(new_pos);
+    let mut rev_text_iter = text.chars().rev().skip(text.len() - new_pos);
+    let mut i: usize = 0;
+
+    // represents the characters at the "head" of the cursor after
+    // loop ends.
+    let mut head_char: Option<char> = None;
+
+    loop {
+        if right {
+            if let Some(c) = text_iter.next() {
+                println!("--> {}", c);
+
+                if c == ' ' || c == '.' || c == ',' {
+                    println!("found target chars!");
+
+                    head_char = Some(c);
+
+                    if c == ' ' || i != 0 {
+                        break;
+                    }
+                }
+            } else {
+                error!("There was an error peeking the text to the right");
+                break;
+            }
+
+            new_pos += 1;
+        } else {
+            if let Some(c) = rev_text_iter.next() {
+                println!("--> {}", c);
+
+                if c == ' ' || c == '.' || c == ',' {
+                    println!("found target chars!");
+
+                    head_char = Some(c);
+
+                    if c == ' ' || i != 0 {
+                        break;
+                    }
+                }
+            } else {
+                error!("There was an error peeking the text to the right");
+                break;
+            }
+
+            if new_pos > 0 {
+                new_pos -= 1;
+            } else {
+                error!("cursor at pos 0 when peeking left");
+                break;
+            }
+        }
+
+        if i > 1000 {
+            error!("Max iter condition reached!");
+            break;
+        }
+
+        i += 1;
+    }
+
+    if let Some(c) = head_char {
+        println!("previous loop was successful");
+        if c != ' ' {
+            new_pos -= 1;
+        }
+    }
+
+    editor_mut.cursor_mut().set(new_pos);
+}
 
 #[component]
 pub fn Editor() -> Element {
@@ -133,6 +215,18 @@ pub fn Editor() -> Element {
                     *CURRENT_NOTE.write() = Some(note);
                     return;
                 }
+            }
+
+            if let Key::ArrowRight = e.data.key.clone() {
+                let mut editor_mut = editor.editor_mut().write();
+
+                cursor_ctrl_nav(&mut editor_mut, true);
+            }
+
+            if let Key::ArrowLeft = e.data.key.clone() {
+                let mut editor_mut = editor.editor_mut().write();
+
+                cursor_ctrl_nav(&mut editor_mut, false);
             }
         }
 
