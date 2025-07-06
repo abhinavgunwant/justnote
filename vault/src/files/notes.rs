@@ -17,7 +17,7 @@ use std::{
     io::{ Error as IOError, ErrorKind as IOErrorKind },
 };
 
-use log::{ info, debug, error };
+use log::{ debug, error };
 
 use aes::{
     Aes256,

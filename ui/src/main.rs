@@ -5,6 +5,7 @@ mod signals;
 mod styles;
 mod startup;
 mod logging;
+mod config;
 
 use freya::prelude::*;
 use app::app;

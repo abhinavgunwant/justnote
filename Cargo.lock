@@ -4609,6 +4609,8 @@ dependencies = [
  "freya",
  "log",
  "log4rs",
+ "serde",
+ "serde_yaml",
  "types",
  "vault",
 ]
