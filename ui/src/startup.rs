@@ -1,31 +1,16 @@
 use log::{ info, debug, error };
-use serde::{ Serialize, Deserialize };
 
 use vault::{
-    files::{ vault::get_default_vault_name, vault_index::get_vault_index, vault_info::get_vault_info }, is_first_start
+    files::{ vault_index::get_vault_index, vault_info::get_vault_info },
+    is_first_start
 };
 
 use types::VaultIndex;
+use config::Config;
 
-use crate::{
-    config::Config,
-    signals::{
-        AUTHENTICATED, FIRST_START, VAULT_INDEX, VAULT_NAME, SHOW_EXPLORER,
-    },
+use crate::signals::{
+    AUTHENTICATED, FIRST_START, VAULT_INDEX, VAULT_NAME, SHOW_EXPLORER,
 };
-
-/// Startup config struct
-#[derive(Debug, Default, Serialize, Deserialize)]
-pub struct StartupConfig {
-    #[serde(
-        skip_serializing_if = "String::is_empty",
-        default = "String::default"
-    )]
-    pub default_vault: String,
-
-    /// Minimize explorer on startup
-    pub hide_explorer: bool,
-}
 
 /// Runs on startup to initialize some global signals.
 pub fn startup() {

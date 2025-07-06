@@ -1,6 +1,6 @@
 use std::{ fs::{ File, read_to_string }, io::Write };
 
-use log::{ debug, error };
+use log::{ info, debug, error };
 
 use types::VaultError;
 
@@ -117,19 +117,19 @@ pub fn create_vault(
                 return Err(format!("{}", e));
             }
 
-            debug!("Info file created");
+            info!("Info file created");
 
             if let Err(e) = create_vault_index_file(&path) {
                 return Err(format!("{}", e));
             }
 
-            debug!("Index file created");
+            info!("Index file created");
 
             if let Err(e) = create_vault_notes_directory(&path) {
                 return Err(format!("{}", e));
             }
 
-            debug!("vault notes directory created");
+            info!("vault notes directory created");
 
             debug!("Creating default vault file");
 

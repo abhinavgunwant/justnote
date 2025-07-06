@@ -7,18 +7,7 @@ edition = "2021"
 freya = "0.3.3"
 vault = { path = "../vault" }
 types = { path = "../types" }
+config = { path = "../config" }
 log = "0.4.27"
 serde = "1.0.219"
 serde_yaml = "0.9.34"
-
-[dependencies.log4rs]
-version = "1.3.0"
-features = [
-    "gzip",
-    "background_rotation",
-    "console_appender",
-    "size_trigger",
-    "fixed_window_roller",
-    "rolling_file_appender"
-]
-

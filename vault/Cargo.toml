@@ -9,5 +9,6 @@ dirs-next = "2.0.0"
 serde = "1.0.219"
 fb = { path = "../fb" }
 types = { path = "../types" }
+config = { path = "../config" }
 aes = "0.8.4"
 log = "0.4.27"
