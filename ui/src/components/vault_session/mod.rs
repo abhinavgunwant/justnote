@@ -4,45 +4,48 @@ pub mod note_name;
 
 use freya::prelude::*;
 
-use log::{ info, error };
+use log::{ info, error, debug };
 
-use vault::auth::{ authenticate_vault, AuthenticationError };
+use vault::{auth::{ authenticate_vault, AuthenticationError }, files::vault_info::get_vault_info};
 
 use crate::{
-    signals::{ AUTHENTICATED, VAULT_NAME, VAULT_KEY, SHOW_EXPLORER },
+    signals::{ AUTHENTICATED, VAULT_NAME, VAULT_KEY, SHOW_EXPLORER, VIEW },
     styles::{ password_input_theme, PRIMARY_BUTTON, SECONDARY_BUTTON },
-    components::vault_session::{
-        explorer::Explorer,
-        editor::Editor,
-    },
+    components::vault_session::{ explorer::Explorer, editor::Editor },
+    app::View,
 };
 
 #[derive(Debug, PartialEq)]
 pub enum ActiveArea {
     NoteName,
     Editor,
-    // None,
-}
-
-#[derive(Debug, Default, PartialEq)]
-enum View {
-    #[default]
-    Password,
-    VaultList,
 }
 
 #[component]
 pub fn VaultSession() -> Element {
     let mut password = use_signal(String::default);
-    let mut view = use_signal(View::default);
 
-    let vault_name = if let Some(v) = VAULT_NAME.read().as_ref() {
+    let vault_name = if let Some(v) = VAULT_NAME.read().clone() {
         v.clone()
     } else {
         String::default()
     };
 
+    let vault_name_cloned = vault_name.clone();
+
+    use_effect(move || {
+        if let Ok(info) = get_vault_info(vault_name_cloned.as_str()) {
+            // is the vault unencrypted? make it authenticated if yes.
+            if info.password.is_empty() {
+                debug!("Vault is unencrypted, marking it authenticated");
+                *AUTHENTICATED.write() = true;
+            }
+        }
+    });
+
     if !*AUTHENTICATED.read() {
+        debug!("Vault is unauthenticated");
+
         return rsx! {
             rect {
                 width: "100%",
@@ -114,7 +117,7 @@ pub fn VaultSession() -> Element {
 
                         Button {
                             theme: SECONDARY_BUTTON,
-                            onclick: move |_| *view.write() = View::VaultList,
+                            onclick: move |_| *VIEW.write() = View::SelectVault,
 
                             label { "Change Vault" }
                         }

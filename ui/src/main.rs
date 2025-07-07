@@ -4,6 +4,7 @@ mod colors;
 mod signals;
 mod styles;
 mod startup;
+mod utils;
 
 use freya::prelude::*;
 use app::app;

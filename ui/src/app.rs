@@ -3,17 +3,30 @@ use freya::prelude::*;
 use log::debug;
 
 use crate::{
-    startup::startup, colors::COLOR_DARK_0,
-    signals::{ FIRST_START, SHOW_EXPLORER },
+    colors::COLOR_DARK_0, startup::startup,
     components::{
-        first_start::FirstStart,
+        first_start::FirstStart, select_vault::SelectVault,
         vault_session::VaultSession,
     },
+    signals::{ FIRST_START, SHOW_EXPLORER, VIEW },
 };
+
+#[derive(Debug, Default, PartialEq)]
+pub enum View {
+    #[default]
+    VaultSession,
+    SelectVault,
+    CreateVault,
+}
 
 /// Main component/element for this app.
 pub fn app() -> Element {
-    startup();
+    let mut su = use_signal(||false);
+
+    if !*su.read() {
+        startup();
+        *su.write() = true;
+    }
 
     let onglobalkeydown = move |e: KeyboardEvent| {
         if let Modifiers::CONTROL = e.data.modifiers {
@@ -25,6 +38,12 @@ pub fn app() -> Element {
 
                     *SHOW_EXPLORER.write() = !show;
                     return;
+                }
+
+                if c == "g" || c == "G" {
+                    debug!("Change Vault Command!");
+
+                    *VIEW.write() = View::SelectVault;
                 }
             }
         }
@@ -42,7 +61,11 @@ pub fn app() -> Element {
             if *FIRST_START.read() {
                 FirstStart {}
             } else {
-                VaultSession {}
+                if *VIEW.read() == View::VaultSession {
+                    VaultSession {}
+                } else {
+                    SelectVault {}
+                }
             }
         }
     }

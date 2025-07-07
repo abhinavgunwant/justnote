@@ -254,6 +254,7 @@ pub fn Editor() -> Element {
                 label { "Ctrl + N: New note" }
                 label { "Ctrl + S: Save note" }
                 label { "Ctrl + E: Show/hide explorer" }
+                label { "Ctrl + G: Change Vault" }
             }
         }
     }

@@ -6,7 +6,7 @@ use vault::is_first_start;
 
 use types::{ Note, VaultIndex };
 
-use crate::components::vault_session::ActiveArea;
+use crate::{app::View, components::vault_session::ActiveArea};
 
 pub static FIRST_START: GlobalSignal<bool> = Signal::global(|| {
     is_first_start()
@@ -35,4 +35,6 @@ pub static EXPLORER_WIDTH: GlobalSignal<u16> = Signal::global(|| 200);
 pub static AUTHENTICATED: GlobalSignal<bool> = Signal::global(|| false);
 
 pub static VAULT_KEY: GlobalSignal<[u8; 32]> = Signal::global(|| [0u8; 32]);
+
+pub static VIEW: GlobalSignal<View> = Signal::global(View::default);
 

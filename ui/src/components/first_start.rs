@@ -1,27 +1,24 @@
 use freya::prelude::*;
 
-use vault::files::vault::create_vault;
 use crate::{
-    signals::FIRST_START, styles::{
-        PRIMARY_BUTTON, SECONDARY_BUTTON, password_input_theme,
-    },
+    styles::{ PRIMARY_BUTTON, SECONDARY_BUTTON },
+    components::create_vault::CreateVault,
 };
 
 #[derive(Debug, Default, PartialEq)]
-enum View {
+enum FirstStartView {
+    /// The first page in the first start view
     #[default]
     Start,
+
+    /// The create vault dialog
     CreateVault
 }
 
 #[component]
 pub fn FirstStart() -> Element {
     let version = env!("CARGO_PKG_VERSION");
-    let mut view = use_signal(|| View::default());
-    let mut vault_name = use_signal(String::default);
-    let mut vault_pass = use_signal(String::default);
-    let mut error = use_signal(String::default);
-    let mut no_password = use_signal(|| false);
+    let mut view = use_signal(|| FirstStartView::default());
 
     rsx! {
         rect {
@@ -31,7 +28,7 @@ pub fn FirstStart() -> Element {
             main_align: "center",
             cross_align: "center",
 
-            if *view.read() == View::Start {
+            if *view.read() == FirstStartView::Start {
                 label {
                     width: "100%",
                     text_align: "center",
@@ -82,119 +79,25 @@ pub fn FirstStart() -> Element {
 
                     Button {
                         theme: PRIMARY_BUTTON,
-                        onclick: move |_| *view.write() = View::CreateVault,
+                        onclick: move |_| *view.write() = FirstStartView::CreateVault,
 
                         label { "Get Started" }
                     }
                 }
             } else {
-                label {
-                    width: "100%",
-                    text_align: "center",
-                    font_size: "20",
-
-                    "Create a Vault"
-                }
-
-                if !error.read().is_empty() {
-                    label {
-                        width: "100%",
-                        text_align: "center",
-                        font_size: "20",
-                        color: "#ff0000",
-
-                        "Error: { error }"
-                    }
-                }
+                CreateVault {}
 
                 rect {
                     width: "100%",
+                    text_align: "center",
                     main_align: "center",
                     cross_align: "center",
-                    spacing: "8",
-                    margin: "16 0 0 0",
 
-                    Input {
-                        width: "200",
-                        value: "{ vault_name }",
-                        placeholder: "Vault Name",
-                        auto_focus: true,
-                        onchange: move |e| vault_name.set(e)
-                    }
+                    Button {
+                        theme: SECONDARY_BUTTON,
+                        onclick: move |_| *view.write() = FirstStartView::Start,
 
-                    Input {
-                        width: "200",
-                        value: "{ vault_pass }",
-                        placeholder: "Vault Password",
-                        mode: InputMode::Hidden('*'),
-                        theme: password_input_theme(*no_password.read()),
-                        onchange: move |e| {
-                            if !*no_password.read() {
-                                vault_pass.set(e);
-                            }
-                        }
-                    }
-
-                    Tile {
-                        onselect: move |_| {
-                            let new_no_password = !*no_password.read();
-                            *no_password.write() = new_no_password;
-                        },
-
-                        leading: rsx! {
-                            Checkbox {
-                                selected: *no_password.read(),
-                            }
-                        },
-
-                        label {
-                            "Don't encrypt this vault"
-                        }
-                    }
-
-                    rect {
-                        direction: "vertical",
-                        spacing: "4",
-                        margin: "20 0 0 0",
-
-                        rect {
-                            width: "100%",
-                            text_align: "center",
-                            main_align: "center",
-                            cross_align: "center",
-
-                            Button {
-                                theme: PRIMARY_BUTTON,
-
-                                onclick: move |_| {
-                                    if let Err(msg) = create_vault(
-                                        vault_name.cloned(),
-                                        vault_pass.cloned(),
-                                        true
-                                    ) {
-                                        *error.write() = msg;
-                                    };
-
-                                    *FIRST_START.write() = false;
-                                },
-
-                                label { "Create Vault" }
-                            }
-                        }
-
-                        rect {
-                            width: "100%",
-                            text_align: "center",
-                            main_align: "center",
-                            cross_align: "center",
-
-                            Button {
-                                theme: SECONDARY_BUTTON,
-                                onclick: move |_| *view.write() = View::Start,
-
-                                label { "Back" }
-                            }
-                        }
+                        label { "Back" }
                     }
                 }
             }

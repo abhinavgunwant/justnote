@@ -4,11 +4,10 @@ mod resize_bar;
 use freya::prelude::*;
 
 use crate::{
-    signals::{ VAULT_INDEX, VAULT_NAME, EXPLORER_WIDTH },
     components::vault_session::explorer::{
         note_entry::ExplorerNoteEntry,
         resize_bar::ExplorerResizeBar,
-    },
+    }, signals::{ EXPLORER_WIDTH, VAULT_INDEX, VAULT_NAME }, utils::write_vault_index
 };
 
 /// Displays notes and folders on the left.
@@ -21,6 +20,10 @@ pub fn Explorer() -> Element {
     } else {
         String::default()
     };
+
+    let vault_name_cloned = vault_name.clone();
+
+    use_effect(move || { write_vault_index(&vault_name_cloned); });
 
     rsx! {
         rect {
